@@ -51,7 +51,7 @@ export const Header = () => {
               key={item}
               onClick={() => scrollToSection(item.toLowerCase())}
               className="relative text-marvel-black hover:after:content-[''] hover:after:absolute hover:after:-bottom-3.5 hover:after:left-0 hover:after:w-full hover:after:h-0.5 hover:after:bg-marvel-yellow focus:outline-none focus:ring-2 focus:ring-marvel-yellow focus:ring-offset-2 rounded-sm transition-colors bg-transparent border-none cursor-pointer"
-              style={{ fontSize: '18px' }}
+              style={{ fontSize: '16px' }}
             >
               {item}
             </button>
