@@ -27,7 +27,7 @@ export const Header = () => {
         isScrolled ? 'bg-white' : 'bg-transparent'
       }`}
       style={{
-        paddingTop: '24px',
+        paddingTop: '45px',
         paddingLeft: '257px',
         paddingRight: '253px',
       }}

@@ -39,7 +39,7 @@ export const Services = () => {
         paddingLeft: '257px',
         paddingRight: '253px',
         paddingTop: '100px',
-        paddingBottom: '100px',
+        paddingBottom: '127px',
       }}
     >
       <h2
@@ -48,6 +48,7 @@ export const Services = () => {
           fontSize: '90px',
           lineHeight: '80px',
           marginBottom: '62px',
+          letterSpacing: '-1px',
         }}
       >
         Services
@@ -100,7 +101,7 @@ export const Services = () => {
                 fontSize: '38px',
                 fontWeight: 'bold',
                 marginBottom: '13px',
-                lineHeight: 'normal',
+                lineHeight: 1.2,
               }}
             >
               {service.title}

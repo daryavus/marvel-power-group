@@ -9,15 +9,16 @@ export const About = () => {
         paddingLeft: '257px',
         paddingRight: '253px',
         paddingTop: '93px',
-        paddingBottom: '140px',
+        paddingBottom: '127px',
       }}
     >
       <h2
         className="font-alata text-marvel-black"
         style={{
           fontSize: '90px',
-          lineHeight: '100px',
+          lineHeight: '88px',
           marginBottom: '50px',
+          letterSpacing: '-2px',
         }}
       >
         About Us

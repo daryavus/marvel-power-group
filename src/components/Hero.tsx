@@ -22,7 +22,7 @@ export const Hero = () => {
 
       <div className="flex-1 flex flex-col justify-center" >
         <div className="text-white" style={{
-          marginTop: '400px',
+          marginTop: '420px',
         }}>
           <h1
             className="font-alata"
@@ -31,6 +31,7 @@ export const Hero = () => {
               lineHeight: '130px',
               marginBottom: '31px',
               textAlign: 'center',
+              letterSpacing: '-2px',
             }}
           >
             Marvel Power Group
@@ -128,7 +129,7 @@ export const Hero = () => {
           className="text-white text-center font-light"
           style={{
             fontSize: '12px',
-            marginTop: '29px',
+            marginTop: '14px',
             marginBottom: '55px',
             letterSpacing: '0.5px'
           }}
