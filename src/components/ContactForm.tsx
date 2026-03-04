@@ -1,20 +1,30 @@
 import { useState } from 'react';
 import plugIcon from '../assets/plug-icon.svg';
+import { useRateLimit } from '../hooks/useRateLimit';
+import { subscribeToNewsletter } from '../lib/api';
 
 interface ContactFormProps {
   onSuccess: () => void;
 }
 
+type StatusType = 'idle' | 'loading' | 'success' | 'error' | 'rate-limit';
+
 export const ContactForm = ({ onSuccess }: ContactFormProps) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
+  const [status, setStatus] = useState<StatusType>('idle');
+  const [statusMessage, setStatusMessage] = useState('');
+  
+  const { checkRateLimit } = useRateLimit(3, 60000);
 
   const validate = () => {
     const newErrors: { name?: string; email?: string } = {};
     
     if (!name.trim()) {
       newErrors.name = 'Name is required';
+    } else if (name.trim().length < 2) {
+      newErrors.name = 'Name must be at least 2 characters';
     }
     
     if (!email.trim()) {
@@ -26,33 +36,71 @@ export const ContactForm = ({ onSuccess }: ContactFormProps) => {
     return newErrors;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newErrors = validate();
     
-    if (Object.keys(newErrors).length === 0) {
-      // API вызов
-      onSuccess();
-    } else {
+    const newErrors = validate();
+    if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
+      return;
+    }
+    setErrors({});
+
+    if (!checkRateLimit(email)) {
+      setStatus('rate-limit');
+      setStatusMessage('Too many attempts. Please try again in a minute.');
+      return;
+    }
+
+    setStatus('loading');
+    
+    try {
+      const response = await subscribeToNewsletter(email, name);
+      
+      if (response.ok) {
+        setStatus('success');
+        setStatusMessage(response.message);
+        setTimeout(() => {
+          onSuccess();
+        }, 1500);
+      } else {
+        setStatus('error');
+        setStatusMessage(response.error);
+      }
+    } catch (error) {
+      setStatus('error');
+      setStatusMessage('Network error. Please check your connection.');
     }
   };
 
   return (
     <form onSubmit={handleSubmit} style={{ maxWidth: '445px' }}>
+      {status !== 'idle' && status !== 'loading' && (
+        <div 
+          className={`p-3 mb-4 rounded ${
+            status === 'success' ? 'bg-green-500/20 text-green-200' :
+            status === 'rate-limit' ? 'bg-yellow-500/20 text-yellow-200' :
+            'bg-red-500/20 text-red-200'
+          }`}
+          role="alert"
+        >
+          {statusMessage}
+        </div>
+      )}
+
       <div style={{ marginBottom: '15px' }}>
         <input
           type="text"
           placeholder="NAME *"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full bg-white text-marvel-black font-semibold placeholder:font-semibold placeholder:uppercase"
+          disabled={status === 'loading' || status === 'success'}
+          className="w-full bg-white text-marvel-black font-semibold disabled:opacity-50"
           style={{
             height: '48px',
             padding: '18px 20px',
             border: errors.name ? '2px solid #ff6b6b' : 'none',
             color: '#000000',
-            fontSize: '12px',
           }}
         />
         {errors.name && (
@@ -63,16 +111,16 @@ export const ContactForm = ({ onSuccess }: ContactFormProps) => {
       <div style={{ marginBottom: '15px' }}>
         <input
           type="email"
-          placeholder="E-MAIL *"
+          placeholder="EMAIL *"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full bg-white text-marvel-black font-semibold placeholder:font-semibold placeholder:uppercase"
+          disabled={status === 'loading' || status === 'success'}
+          className="w-full bg-white text-marvel-black font-semibold disabled:opacity-50"
           style={{
             height: '48px',
             padding: '18px 20px',
             border: errors.email ? '2px solid #ff6b6b' : 'none',
             color: '#000000',
-            fontSize: '12px',
           }}
         />
         {errors.email && (
@@ -83,15 +131,16 @@ export const ContactForm = ({ onSuccess }: ContactFormProps) => {
       <div className="flex justify-end">
         <button
           type="submit"
-          className="flex items-center gap-1 bg-marvel-yellow text-marvel-black font-semibold hover:bg-opacity-90 transition-colors"
+          disabled={status === 'loading' || status === 'success'}
+          className="flex items-center gap-2 bg-marvel-yellow text-marvel-black font-semibold hover:bg-opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           style={{
             height: '48px',
-            padding: '19px 100px',
-            fontSize: '13px',
+            padding: '0 30px',
+            fontSize: '16px',
           }}
         >
-          SEND
-          <img src={plugIcon} alt="" className="w-5 h-5" />
+          {status === 'loading' ? 'SENDING...' : 'SEND'}
+          {status !== 'loading' && <img src={plugIcon} alt="" className="w-4 h-4" />}
         </button>
       </div>
     </form>
