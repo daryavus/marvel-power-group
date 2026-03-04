@@ -1,5 +1,6 @@
 import heroBackground from '../assets/hero-bg.png';
 import plugIcon from '../assets/plug-icon.svg';
+import { SectionIndicator } from './SectionIndicator';
 
 export const Hero = () => {
   return (
@@ -11,6 +12,12 @@ export const Hero = () => {
         paddingRight: '253px',
       }}
     >
+      <SectionIndicator
+        currentSection="hero"
+        position="top"
+        top="479px"
+      />
+
       <div className="absolute inset-0 -z-10">
         <img
           src={heroBackground}

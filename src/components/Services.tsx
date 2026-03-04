@@ -1,4 +1,5 @@
 import arrowIcon from '../assets/arrow-icon.svg';
+import { SectionIndicator } from './SectionIndicator';
 
 export const Services = () => {
   const services = [
@@ -42,6 +43,13 @@ export const Services = () => {
         paddingBottom: '127px',
       }}
     >
+      <SectionIndicator 
+        currentSection="services" 
+        position="top"
+        top="480px"
+        color="black"
+      />
+
       <h2
         className="font-alata text-marvel-black"
         style={{

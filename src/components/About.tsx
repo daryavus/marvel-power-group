@@ -1,4 +1,5 @@
 import aboutImage from '../assets/about-img.jpg';
+import { SectionIndicator } from './SectionIndicator';
 
 export const About = () => {
   return (
@@ -12,6 +13,13 @@ export const About = () => {
         paddingBottom: '127px',
       }}
     >
+      <SectionIndicator 
+        currentSection="about" 
+        position="top"
+        top="335px"
+        color="black"
+      />
+
       <h2
         className="font-alata text-marvel-black"
         style={{

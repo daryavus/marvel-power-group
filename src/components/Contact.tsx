@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ContactForm } from './ContactForm';
+import { SectionIndicator } from './SectionIndicator';
 
 export const Contact = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -15,6 +16,11 @@ export const Contact = () => {
         paddingBottom: '90px',
       }}
     >
+      <SectionIndicator 
+        currentSection="contact" 
+        position="top"
+        top="316px"
+      />
 
       <div
         className="flex"
