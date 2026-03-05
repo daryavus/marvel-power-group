@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState } from 'react';
 import plugIcon from '../assets/plug-icon.svg';
 import { useRateLimit } from '../hooks/useRateLimit';
@@ -74,7 +75,7 @@ export const ContactForm = ({ onSuccess }: ContactFormProps) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ maxWidth: '445px' }}>
+    <form onSubmit={handleSubmit} style={{ maxWidth: '445px', marginBottom: '68px', fontSize: '14px' }}>
       {status !== 'idle' && status !== 'loading' && (
         <div 
           className={`p-3 mb-4 rounded ${
@@ -88,7 +89,7 @@ export const ContactForm = ({ onSuccess }: ContactFormProps) => {
         </div>
       )}
 
-      <div style={{ marginBottom: '15px' }}>
+      <div style={{ marginBottom: 'clamp(10px, 2vw, 15px)' }}>
         <input
           type="text"
           placeholder="NAME *"
@@ -98,6 +99,7 @@ export const ContactForm = ({ onSuccess }: ContactFormProps) => {
           className="w-full bg-white text-marvel-black font-semibold disabled:opacity-50"
           style={{
             height: '48px',
+            width: 'clamp(290px, 50vw, 445px)',
             padding: '18px 20px',
             border: errors.name ? '2px solid #ff6b6b' : 'none',
             color: '#000000',
@@ -108,16 +110,17 @@ export const ContactForm = ({ onSuccess }: ContactFormProps) => {
         )}
       </div>
 
-      <div style={{ marginBottom: '15px' }}>
+      <div style={{ marginBottom: 'clamp(10px, 2vw, 15px)' }}>
         <input
           type="email"
-          placeholder="EMAIL *"
+          placeholder="E-MAIL *"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           disabled={status === 'loading' || status === 'success'}
           className="w-full bg-white text-marvel-black font-semibold disabled:opacity-50"
           style={{
             height: '48px',
+            width: 'clamp(290px, 50vw, 445px)',
             padding: '18px 20px',
             border: errors.email ? '2px solid #ff6b6b' : 'none',
             color: '#000000',
@@ -132,15 +135,15 @@ export const ContactForm = ({ onSuccess }: ContactFormProps) => {
         <button
           type="submit"
           disabled={status === 'loading' || status === 'success'}
-          className="flex items-center gap-2 bg-marvel-yellow text-marvel-black font-semibold hover:bg-opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-1 bg-marvel-yellow text-marvel-black font-semibold hover:bg-opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           style={{
             height: '48px',
-            padding: '0 30px',
+            padding: 'clamp(16px, 2vw, 17px) clamp(64px, 8vw, 100px)',
             fontSize: '16px',
           }}
         >
           {status === 'loading' ? 'SENDING...' : 'SEND'}
-          {status !== 'loading' && <img src={plugIcon} alt="" className="w-4 h-4" />}
+          {status !== 'loading' && <img src={plugIcon} alt="" className="w-5 h-5" />}
         </button>
       </div>
     </form>

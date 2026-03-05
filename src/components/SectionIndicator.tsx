@@ -37,8 +37,8 @@ export const SectionIndicator = ({
         return (
           <div 
             key={section.number}
-            className="flex items-center gap-3"
-            style={{ marginBottom: '25px' }}
+            className="flex items-center gap-1"
+            style={{ marginBottom: '28px' }}
           >
             <span 
               className="font-sofia"

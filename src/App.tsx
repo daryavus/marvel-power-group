@@ -10,19 +10,11 @@ function App() {
   return (
     <>
       <Header />
-      <main>
-        <section id="hero">
-          <Hero />
-        </section>
-        <section id="about">
-          <About />
-        </section>
-        <section id="services">
-          <Services />
-        </section>
-        <section id="contact">
-          <Contact />
-        </section>
+      <main className="w-full overflow-x-hidden">
+        <Hero />
+        <About />
+        <Services />
+        <Contact />
       </main>
     </>
   );
