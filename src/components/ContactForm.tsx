@@ -1,6 +1,5 @@
 import React, { useState, useId } from 'react';
 import plugIcon from '../assets/plug-icon.svg';
-import { useRateLimit } from '../hooks/useRateLimit';
 import { subscribeToNewsletter } from '../lib/api';
 
 interface ContactFormProps {
@@ -15,37 +14,35 @@ export const ContactForm = ({ onSuccess }: ContactFormProps) => {
   const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
   const [status, setStatus] = useState<StatusType>('idle');
   const [statusMessage, setStatusMessage] = useState('');
-  
+
   const formId = useId();
   const nameId = `name-${formId}`;
   const emailId = `email-${formId}`;
   const nameErrorId = `name-error-${formId}`;
   const emailErrorId = `email-error-${formId}`;
   const statusId = `form-status-${formId}`;
-  
-  const { checkRateLimit } = useRateLimit(3, 60000);
 
   const validate = () => {
     const newErrors: { name?: string; email?: string } = {};
-    
+
     if (!name.trim()) {
       newErrors.name = 'Name is required';
     } else if (name.trim().length < 2) {
       newErrors.name = 'Name must be at least 2 characters';
     }
-    
+
     if (!email.trim()) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(email)) {
       newErrors.email = 'Email is invalid';
     }
-    
+
     return newErrors;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const newErrors = validate();
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -53,25 +50,21 @@ export const ContactForm = ({ onSuccess }: ContactFormProps) => {
     }
     setErrors({});
 
-    if (!checkRateLimit(email)) {
-      setStatus('rate-limit');
-      setStatusMessage('Too many attempts. Please try again in a minute.');
-      return;
-    }
-
     setStatus('loading');
-    
+
     try {
       const response = await subscribeToNewsletter(email, name);
-      
+
       if (response.ok) {
         setStatus('success');
         setStatusMessage(response.message);
-        setTimeout(() => {
-          onSuccess();
-        }, 1500);
+        setTimeout(() => onSuccess(), 1500);
       } else {
-        setStatus('error');
+        if (response.status === 429) {
+          setStatus('rate-limit');
+        } else {
+          setStatus('error');
+        }
         setStatusMessage(response.error);
       }
     } catch (error) {
@@ -81,20 +74,19 @@ export const ContactForm = ({ onSuccess }: ContactFormProps) => {
   };
 
   return (
-    <form 
-      onSubmit={handleSubmit} 
+    <form
+      onSubmit={handleSubmit}
       style={{ maxWidth: '445px', marginBottom: '68px', fontSize: '14px' }}
       aria-label="Newsletter subscription form"
       noValidate
     >
-      <div 
+      <div
         id={statusId}
-        className={`p-3 mb-4 rounded ${
-          status === 'success' ? 'bg-green-500/20 text-green-200' :
-          status === 'rate-limit' ? 'bg-yellow-500/20 text-yellow-200' :
-          status === 'error' ? 'bg-red-500/20 text-red-200' :
-          'hidden'
-        }`}
+        className={`p-3 mb-4 rounded ${status === 'success' ? 'bg-green-500/20 text-green-200' :
+            status === 'rate-limit' ? 'bg-yellow-500/20 text-yellow-200' :
+              status === 'error' ? 'bg-red-500/20 text-red-200' :
+                'hidden'
+          }`}
         role="status"
         aria-live="polite"
         aria-atomic="true"
@@ -130,7 +122,7 @@ export const ContactForm = ({ onSuccess }: ContactFormProps) => {
           aria-required="true"
         />
         {errors.name && (
-          <p 
+          <p
             id={nameErrorId}
             className="text-red-400 text-sm mt-1"
             role="alert"
@@ -154,7 +146,7 @@ export const ContactForm = ({ onSuccess }: ContactFormProps) => {
             const newErrors = validate();
             setErrors(prev => ({ ...prev, email: newErrors.email }));
           }}
-          disabled={status === 'loading' || status === 'success'}
+          disabled={status === 'loading' || status === 'success' || status === 'rate-limit'}
           className="w-full bg-white text-marvel-black font-semibold disabled:opacity-50"
           style={{
             height: '48px',
@@ -168,7 +160,7 @@ export const ContactForm = ({ onSuccess }: ContactFormProps) => {
           aria-required="true"
         />
         {errors.email && (
-          <p 
+          <p
             id={emailErrorId}
             className="text-red-400 text-sm mt-1"
             role="alert"
@@ -181,7 +173,7 @@ export const ContactForm = ({ onSuccess }: ContactFormProps) => {
       <div className="flex justify-end">
         <button
           type="submit"
-          disabled={status === 'loading' || status === 'success'}
+          disabled={status === 'loading' || status === 'success' || status === 'rate-limit'}
           className="flex items-center gap-1 bg-marvel-yellow text-marvel-black font-semibold hover:bg-opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-marvel-yellow"
           style={{
             height: '48px',

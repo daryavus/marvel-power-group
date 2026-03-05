@@ -8,9 +8,11 @@
 @layer base {
   html {
     font-family: 'Montserrat', sans-serif;
+    font-display: swap;
   }
   
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Alata', sans-serif;
+    font-display: swap;
   }
 }
