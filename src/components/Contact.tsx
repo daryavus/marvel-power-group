@@ -15,7 +15,7 @@ export const Contact = () => {
         paddingTop: 'clamp(40px, 6vw, 100px)',
       }}
     >
-      <div className="hidden md:block">
+      <div className="hidden xl:block">
         <SectionIndicator
           currentSection="contact"
           position="top"

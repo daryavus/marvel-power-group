@@ -42,7 +42,7 @@ export const Services = () => {
         paddingBottom: 'clamp(62px, 9vw, 128px)',
       }}
     >
-      <div className="hidden md:block">
+      <div className="hidden xl:block">
         <SectionIndicator 
           currentSection="services" 
           position="top"

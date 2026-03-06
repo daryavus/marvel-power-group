@@ -76,7 +76,7 @@ export const ContactForm = ({ onSuccess }: ContactFormProps) => {
   return (
     <form
       onSubmit={handleSubmit}
-      style={{ maxWidth: '445px', marginBottom: '68px', fontSize: '14px' }}
+      style={{ width: 'clamp(290px, 50vw, 445px)', marginBottom: '68px', fontSize: '14px' }}
       aria-label="Newsletter subscription form"
       noValidate
     >

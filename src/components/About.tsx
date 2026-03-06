@@ -12,7 +12,7 @@ export const About = () => {
         paddingBottom: 'clamp(60px, 9vw, 140px)',
       }}
     >
-      <div className="hidden md:block">
+      <div className="hidden xl:block">
         <SectionIndicator 
           currentSection="about" 
           position="top"

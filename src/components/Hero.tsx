@@ -23,7 +23,7 @@ export const Hero = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent" />
       </div>
 
-      <div className="hidden md:block">
+      <div className="hidden xl:block">
         <SectionIndicator
           currentSection="hero"
           position="top"
