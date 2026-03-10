@@ -3,30 +3,45 @@ export type ApiResponse =
   | { ok: false; status: 400; error: string }
   | { ok: false; status: 429; error: string };
 
-const attempts = new Map<string, number[]>();
+const API_URL = 'http://localhost:3001';
 
 export const subscribeToNewsletter = async (email: string, name: string): Promise<ApiResponse> => {
-  await new Promise(resolve => setTimeout(resolve, 300));
+  try {
+    const response = await fetch(`${API_URL}/api/subscribe`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, name }),
+    });
 
-  if (!email || !email.includes('@')) {
-    return { ok: false, status: 400, error: 'Invalid email format' };
+    const data = await response.json();
+
+    if (response.ok) {
+      return {
+        ok: true,
+        status: 200,
+        message: data.message || 'Successfully subscribed!',
+      };
+    }
+
+    return {
+      ok: false,
+      status: response.status as 400 | 429,
+      error: data.error || 'Something went wrong',
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      status: 400,
+      error: 'Network error. Please check your connection.',
+    };
   }
-
-  if (!name || name.length < 2) {
-    return { ok: false, status: 400, error: 'Name is too short' };
-  }
-
-  const now = Date.now();
-  const userAttempts = attempts.get(email) || [];
-  const recentAttempts = userAttempts.filter(time => now - time < 60000);
-  
-  if (recentAttempts.length >= 3) {
-    return { ok: false, status: 429, error: 'Too many requests. Please try again later.' };
-  }
-
-  attempts.set(email, [...recentAttempts, now]);
-  return { ok: true, status: 200, message: 'Successfully subscribed!' };
 };
 
 // Для тестов
-export const resetRateLimit = () => attempts.clear();
+export const resetRateLimit = async () => {
+  if (import.meta.env.MODE === 'test') {
+    await fetch(`${API_URL}/api/test/reset-rate-limit`, { method: 'POST' });
+  }
+};

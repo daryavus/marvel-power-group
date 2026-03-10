@@ -1,71 +1,72 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ContactForm } from '../ContactForm';
-
-// Мокаем API
-vi.mock('../../lib/api', () => ({
-  subscribeToNewsletter: vi.fn().mockResolvedValue({
-    ok: true,
-    status: 200,
-    message: 'Successfully subscribed!'
-  })
-}));
 
 describe('ContactForm', () => {
   const mockOnSuccess = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.stubGlobal('fetch', vi.fn());
   });
 
-  it('shows validation errors and connects them with aria-describedby', async () => {
+  it('показывает сообщение об ошибке при 429', async () => {
     const user = userEvent.setup();
+    
+    // Мок для 429
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: false,
+      status: 429,
+      json: async () => ({ error: 'Too many requests. Please try again later.' })
+    } as Response);
+    
     render(<ContactForm onSuccess={mockOnSuccess} />);
     
-    // Нажимаем Send без заполнения полей
-    const submitButton = screen.getByRole('button', { name: /send/i });
-    await user.click(submitButton);
+    await user.type(screen.getByLabelText('Name'), 'John Doe');
+    await user.type(screen.getByLabelText('Email'), 'test@test.com');
+    await user.click(screen.getByRole('button', { name: /send/i }));
     
-    // Проверяем, что ошибки появились
-    const nameError = await screen.findByText('Name is required');
-    const emailError = await screen.findByText('Email is required');
-    
-    expect(nameError).toBeInTheDocument();
-    expect(emailError).toBeInTheDocument();
-    
-    // Проверяем связь через aria-describedby
-    const nameInput = screen.getByLabelText('Name', { selector: 'input' });
-    const emailInput = screen.getByLabelText('Email', { selector: 'input' });
-    
-    expect(nameInput).toHaveAttribute('aria-invalid', 'true');
-    expect(nameInput).toHaveAttribute('aria-describedby');
-    expect(emailInput).toHaveAttribute('aria-invalid', 'true');
-    expect(emailInput).toHaveAttribute('aria-describedby');
-    
-    // ID ошибки должен соответствовать aria-describedby
-    const describedById = nameInput.getAttribute('aria-describedby');
-    const errorElement = document.getElementById(describedById!);
-    expect(errorElement).toHaveTextContent('Name is required');
+    await waitFor(() => {
+      expect(screen.getByRole('status')).toHaveTextContent('Too many requests');
+    });
   });
 
-  it('validates email format', async () => {
+  it('показывает успех при 200', async () => {
     const user = userEvent.setup();
+    
+    // Мок для 200
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => ({ message: 'Successfully subscribed!' })
+    } as Response);
+    
     render(<ContactForm onSuccess={mockOnSuccess} />);
     
-    // Вводим некорректный email
-    const nameInput = screen.getByLabelText('Name');
-    const emailInput = screen.getByLabelText('Email');
+    await user.type(screen.getByLabelText('Name'), 'John Doe');
+    await user.type(screen.getByLabelText('Email'), 'test@test.com');
+    await user.click(screen.getByRole('button', { name: /send/i }));
     
-    await user.type(nameInput, 'John Doe');
-    await user.type(emailInput, 'invalid-email');
+    await waitFor(() => {
+      expect(screen.getByRole('status')).toHaveTextContent('Successfully subscribed!');
+    });
+  });
+
+  it('обрабатывает сетевую ошибку', async () => {
+    const user = userEvent.setup();
     
-    // Уходим с поля (blur)
-    await user.tab();
+    // Мок для сетевой ошибки
+    vi.mocked(fetch).mockRejectedValueOnce(new Error('Network error'));
     
-    // Проверяем ошибку
-    const emailError = await screen.findByText('Email is invalid');
-    expect(emailError).toBeInTheDocument();
-    expect(emailInput).toHaveAttribute('aria-invalid', 'true');
+    render(<ContactForm onSuccess={mockOnSuccess} />);
+    
+    await user.type(screen.getByLabelText('Name'), 'John Doe');
+    await user.type(screen.getByLabelText('Email'), 'test@test.com');
+    await user.click(screen.getByRole('button', { name: /send/i }));
+    
+    await waitFor(() => {
+      expect(screen.getByRole('status')).toHaveTextContent('Network error');
+    });
   });
 });

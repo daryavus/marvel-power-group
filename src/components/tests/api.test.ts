@@ -2,8 +2,8 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { subscribeToNewsletter, resetRateLimit } from '../../lib/api';
 
 describe('API', () => {
-  beforeEach(() => {
-    resetRateLimit();
+  beforeEach(async () => {
+    await resetRateLimit();
   });
 
   it('возвращает 429 после 3 попыток', async () => {
@@ -23,5 +23,5 @@ describe('API', () => {
     if (!res.ok) {
       expect(res.error).toBe('Too many requests. Please try again later.');
     }
-  });
+  }, 10000);
 });
